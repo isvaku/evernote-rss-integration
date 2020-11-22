@@ -26,8 +26,14 @@ REMOVE_ATTRIBUTES = [
     'border','valign','align','background','bgcolor','text','link','vlink',
     'alink','cellpadding','cellspacing', 'alt', 'src']
 
+client = EvernoteClient(consumer_key= CONSUMER_KEY, consumer_secret= CONSUMER_SECRET)
+request_token = client.get_request_token('http://localhost/registerOauthUser')
+session_token = request_token['oauth_token_secret']
+
 @application.route('/')
 def index():
+    authorize_url = client.get_authorize_url(request_token)
+
     email = request.args.get('email')
 
     if not email:
@@ -35,20 +41,13 @@ def index():
 
     session['email'] = email
 
-    client = EvernoteClient(consumer_key= CONSUMER_KEY, consumer_secret= CONSUMER_SECRET)
-    request_token = client.get_request_token('http://localhost/registerOauthUser')
-    authorize_url = client.get_authorize_url(request_token)
-    session["session_token"] = request_token['oauth_token_secret']
-    
     return redirect(authorize_url, code=302)
 
 @application.route('/registerOauthUser')
 def registerOauthUser():
-    client = EvernoteClient(consumer_key= CONSUMER_KEY, consumer_secret= CONSUMER_SECRET)
     oauth_verifier= request.args.get('oauth_verifier')
     oauth_token= request.args.get('oauth_token')
 
-    session_token = session['session_token']
     access_token = client.get_access_token( oauth_token, session_token, oauth_verifier, return_full_dict=True)    
 
     user = {
@@ -61,7 +60,6 @@ def registerOauthUser():
     db.users.insert_one(user)
 
     session.pop('email', None)
-    session.pop('session_token', None)
 
     return jsonify(
         status=True,
