@@ -19,4 +19,4 @@ USER www
 
 EXPOSE 5000
 
-CMD [ "gunicorn", "-w", "4", "--preload", "--log-level", "debug", "-t", "9999", "--keep-alive", "3", "--bind", "0.0.0.0:5000", "wsgi"]
+CMD [ "gunicorn", "-w", "4", "--preload", "-t", "9999", "--keep-alive", "3", "--bind", "0.0.0.0:5000", "wsgi"]
