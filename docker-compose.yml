@@ -65,6 +65,20 @@ services:
         networks:
             - frontend
 
+    cronserver:
+        build:
+            context: cron
+            dockerfile: Dockerfile
+        image: isvaku/cronserver
+        container_name: cronserver
+        restart: unless-stopped
+        # volumes:
+            # - crondata:/var/log
+        depends_on: 
+            - webserver
+        networks: 
+            - frontend
+
 networks:
     frontend:
         driver: bridge
@@ -78,3 +92,5 @@ volumes:
         driver: local
     nginxdata:
         driver: local
+    # crondata:
+    #     driver: local
