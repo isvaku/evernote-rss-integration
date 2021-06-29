@@ -12,6 +12,7 @@ services:
             APP_ENV: "dev"
             APP_DEBUG: "True"
             APP_PORT: 5000
+            IS_CHINA: "False"
             MONGODB_DATABASE: flaskdb
             MONGODB_USERNAME: flaskuser
             MONGODB_PASSWORD: password

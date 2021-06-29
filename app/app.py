@@ -20,13 +20,16 @@ CONSUMER_SECRET = os.environ['EVERNOTE_CONSUMER_SECRET']
 mongo = PyMongo(application)
 db = mongo.db
 
+SANDBOX = os.environ['APP_DEBUG']
+CHINA = os.environ['IS_CHINA']
+
 REMOVE_ATTRIBUTES = [
     'lang','language','onmouseover','onmouseout','script','font',
     'dir','face','size','color','class','hspace',
     'border','valign','align','background','bgcolor','text','link','vlink',
     'alink','cellpadding','cellspacing', 'alt', 'src']
 
-client = EvernoteClient(consumer_key= CONSUMER_KEY, consumer_secret= CONSUMER_SECRET)
+client = EvernoteClient(consumer_key= CONSUMER_KEY, consumer_secret= CONSUMER_SECRET, sandbox= SANDBOX, china= CHINA)
 request_token = client.get_request_token('http://localhost/registerOauthUser')
 session_token = request_token['oauth_token_secret']
 
@@ -72,7 +75,7 @@ def addRSSFeed():
 
     # TODO: Identify user
     
-    client = EvernoteClient(consumer_key= CONSUMER_KEY, consumer_secret= CONSUMER_SECRET, token=user["oauth_token"])
+    client = EvernoteClient(consumer_key= CONSUMER_KEY, consumer_secret= CONSUMER_SECRET, token=user["oauth_token"], sandbox= SANDBOX, china= CHINA)
 
     params = {
         'notebook': request.form.get('notebook'),
@@ -205,7 +208,7 @@ def createNotesFromEntries():
         if entry["feed_id"] != currentFeed["_id"]:
             currentFeed = filter(lambda feed: feed['user']["_id"] == entry["feed_id"], _feeds)
 
-        client = EvernoteClient(consumer_key= CONSUMER_KEY, consumer_secret= CONSUMER_SECRET, token=currentFeed["user"]["oauth_token"])
+        client = EvernoteClient(consumer_key= CONSUMER_KEY, consumer_secret= CONSUMER_SECRET, token=currentFeed["user"]["oauth_token"], sandbox= SANDBOX, china= CHINA)
         noteStore = client.get_note_store()
         notebook = None
         tags=None
@@ -272,7 +275,7 @@ def makeNote(noteStore, entry, tags=None, parentNotebook=None):
         if isinstance(tag, NavigableString):
             newContent = soup.new_tag('div')
             newContent.string = html.escape(tag)
-        if tag.name == 'img':
+        if tag.name == 'img' and 'src' in tag:
             tag.name = 'en-media'
             md5, mime, body = getMD5src(tag['src'])
             if md5 is not None and mime is not None and body is not None:
