@@ -1,4 +1,4 @@
-FROM alpine:3.3
+FROM alpine:3.14.1
 
 RUN apk add --update apk-cron && \
 	rm -rf /var/cache/apk/* && \
