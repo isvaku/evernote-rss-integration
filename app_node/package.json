@@ -43,7 +43,6 @@
         "core-js": "^3.18.3",
         "evernote": "^2.0.5",
         "express": "^4.17.1",
-        "html-entities": "^2.3.2",
         "jsonwebtoken": "^8.5.1",
         "mongoose": "^6.0.9",
         "node-html-parser": "^4.0.0",

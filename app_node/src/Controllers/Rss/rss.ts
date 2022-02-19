@@ -8,7 +8,6 @@ import Evernote, { Types } from "evernote";
 import config from "../../Config/config";
 import rssParser from "rss-parser";
 import IEntry from "Interfaces/entry";
-import { decode } from "html-entities";
 import user from "Interfaces/user";
 import rss from "Interfaces/rss";
 import utils from "../../Utils/utils";
@@ -332,7 +331,7 @@ const insertEntriesFromFeed = async (
                             entryId: item.guid,
                             title: item.title,
                             author: item.creator,
-                            content: decode(item["content:encoded"]),
+                            content: item["content:encoded"],
                             link: item.link,
                             entryDate: new Date(item.isoDate),
                             feed: feed._id
