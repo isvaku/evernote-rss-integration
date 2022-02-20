@@ -5,6 +5,7 @@ services:
             context: app_node
             dockerfile: dev.Dockerfile
         environment:
+            TZ: America/Mexico_City
             PORT: 3000
             PROXY_PORT: 80
             PROXY_HOST: "localhost"
@@ -24,11 +25,13 @@ services:
 
     mongodb:
         environment:
+            TZ: America/Mexico_City
             MONGO_INITDB_ROOT_USERNAME: mongodbuser
             MONGO_INITDB_ROOT_PASSWORD: your_mongodb_root_password
 
     webserver:
         environment:
+            TZ: America/Mexico_City
             APP_ENV: "dev"
             APP_NAME: "webserver"
             APP_DEBUG: "false"

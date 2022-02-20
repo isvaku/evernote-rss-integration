@@ -1,6 +1,6 @@
 FROM alpine:3.14.1
 
-RUN apk add --update apk-cron && \
+RUN apk add --update apk-cron tzdata && \
 	rm -rf /var/cache/apk/* && \
 	apk add --no-cache curl
 
