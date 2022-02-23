@@ -52,9 +52,7 @@ services:
             MONGODB_USERNAME: flaskuser
             MONGODB_PASSWORD: password
             MONGODB_HOSTNAME: mongodb
-            MONGODB_DATABASE: flaskdb
-        ports:
-            - "9229:9229"
+            MONGODB_DATABASE: flaskdb        
         volumes:
             - nodeappdata:/usr/app
         depends_on:
