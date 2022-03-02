@@ -2,7 +2,7 @@ FROM alpine:latest
 
 LABEL MAINTAINER="Rigoberto Quezada isvaku@hotmail.com"
 
-RUN apk --update add nginx && \
+RUN apk --update add nginx tzdata && \
     ln -sf /dev/stdout /var/log/nginx/access.log && \
     ln -sf /dev/stderr /var/log/nginx/error.log && \
     mkdir /etc/nginx/sites-enabled/ && \

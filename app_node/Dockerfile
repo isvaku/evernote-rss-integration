@@ -13,6 +13,7 @@ COPY --from=ts-compiler /usr/app/dist ./
 RUN npm install --only=production
 
 FROM node:14.18.1-alpine3.14
+RUN apk add --update tzdata
 WORKDIR /usr/app
 COPY --from=ts-remover /usr/app ./
 USER 1000
