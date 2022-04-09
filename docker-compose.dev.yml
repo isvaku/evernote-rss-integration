@@ -26,6 +26,7 @@ services:
             NODEMAILER_PORT: 587    
             NODEMAILER_USERNAME: example@mail.com
             NODEMAILER_PASSWORD: password
+            BCRYPT_SALT: 10
         ports:
             - "9229:9229"
 

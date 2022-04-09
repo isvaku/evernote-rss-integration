@@ -10,8 +10,7 @@ const SERVER_TOKEN_SECRET: string =
 
 const EVERNOTE_SANDBOX: boolean = process.env.SANDBOX === "true";
 const EVERNOTE_CHINA: boolean = process.env.CHINA === "true";
-const EVERNOTE_API_CONSUMER_KEY: string =
-    process.env.API_CONSUMER_KEY || "";
+const EVERNOTE_API_CONSUMER_KEY: string = process.env.API_CONSUMER_KEY || "";
 const EVERNOTE_API_CONSUMER_SECRET: string =
     process.env.API_CONSUMER_SECRET || "";
 
@@ -20,6 +19,19 @@ const MONGODB_USERNAME: string = process.env.MONGODB_USERNAME || "flaskuser";
 const MONGODB_PASSWORD: string = process.env.MONGODB_PASSWORD || "password";
 const MONGODB_HOSTNAME: string = process.env.MONGODB_HOSTNAME || "localhost";
 const MONGODB_DATABASE: string = process.env.MONGODB_DATABASE || "flaskdb";
+
+const NODEMAILER_HOST: string =
+    process.env.NODEMAILER_HOST || "smtp.example.com";
+const NODEMAILER_USERNAME: string =
+    process.env.NODEMAILER_USERNAME || "user@example.com";
+const NODEMAILER_PASSWORD: string =
+    process.env.NODEMAILER_PASSWORD || "examplepassword";
+const NODEMAILER_PORT: number = Number(process.env.NODEMAILER_PORT) || 587;
+
+const BCRYPT_OPTIONS = {
+    salt: Number(process.env.BCRYPT_SALT) || 10
+};
+
 const MONGODB_OPTIONS = {
     useUnifiedTopology: true,
     useNewUrlParser: true,
@@ -58,10 +70,21 @@ const MONGO = {
     options: MONGODB_OPTIONS
 };
 
+const NODEMAILER = {
+    host: NODEMAILER_HOST,
+    port: NODEMAILER_PORT,
+    auth: {
+        user: NODEMAILER_USERNAME,
+        pass: NODEMAILER_PASSWORD
+    }
+};
+
 const config = {
     server: SERVER,
     evernote: EVERNOTE,
-    mongo: MONGO
+    mongo: MONGO,
+    nodemailer: NODEMAILER,
+    bcrypt: BCRYPT_OPTIONS
 };
 
 export default config;

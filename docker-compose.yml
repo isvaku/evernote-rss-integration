@@ -44,8 +44,8 @@ services:
             TOKEN_EXPIRETIME: 3600
             TOKEN_ISSUER: "isvaku"
             TOKEN_SECRET: "my-very-secret-key"
-            SANDBOX: true
-            CHINA: false
+            SANDBOX: "false"
+            CHINA: "false"
             API_CONSUMER_KEY: your_evernote_consumer_key
             API_CONSUMER_SECRET: your_evernote_consumer_secret
             MONGODB_PORT: 27017
@@ -57,6 +57,7 @@ services:
             NODEMAILER_PORT: 587    
             NODEMAILER_USERNAME: example@mail.com
             NODEMAILER_PASSWORD: password
+            BCRYPT_SALT: 10
         volumes:
             - nodeappdata:/usr/app
         depends_on:
