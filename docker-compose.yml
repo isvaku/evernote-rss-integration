@@ -52,7 +52,11 @@ services:
             MONGODB_USERNAME: flaskuser
             MONGODB_PASSWORD: password
             MONGODB_HOSTNAME: mongodb
-            MONGODB_DATABASE: flaskdb        
+            MONGODB_DATABASE: flaskdb   
+            NODEMAILER_HOST: smtp.mail.com
+            NODEMAILER_PORT: 587    
+            NODEMAILER_USERNAME: example@mail.com
+            NODEMAILER_PASSWORD: password
         volumes:
             - nodeappdata:/usr/app
         depends_on:
