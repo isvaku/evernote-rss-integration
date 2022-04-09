@@ -4,6 +4,8 @@ import bcryptjs from "bcryptjs";
 import mongoose from "mongoose";
 import User from "../../Models/user";
 import signJWT from "../../Utils/signJWT";
+import sendEmail from "../../Utils/Email/sendEmail";
+import config from "../../Config/config";
 
 const NAMESPACE = "User";
 
@@ -18,7 +20,7 @@ const validateToken = (req: Request, res: Response, next: NextFunction) => {
 const register = (req: Request, res: Response, next: NextFunction) => {
     let { username, email, password } = req.body;
 
-    bcryptjs.hash(password, 10, (hashError, hash) => {
+    bcryptjs.hash(password, config.bcrypt.salt, (hashError, hash) => {
         if (hashError) {
             return res.status(500).json({
                 message: hashError.message,
@@ -36,6 +38,12 @@ const register = (req: Request, res: Response, next: NextFunction) => {
         return _user
             .save()
             .then((user) => {
+                sendEmail(
+                    email,
+                    "Welcome to Evernote RSS Integration",
+                    { username },
+                    "./Templates/welcome.hbs"
+                );
                 return res.status(201).json({
                     user
                 });
@@ -48,6 +56,7 @@ const register = (req: Request, res: Response, next: NextFunction) => {
             });
     });
 };
+
 const login = (req: Request, res: Response, next: NextFunction) => {
     const { username, email, password } = req.body;
 
