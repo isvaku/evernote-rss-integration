@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import logging from "../../Utils/logging";
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import User from "../../Models/user";
 import Rss from "../../Models/rss";
 import Entry from "../../Models/entry";
@@ -325,7 +325,11 @@ const insertEntriesFromFeed = async (
             try {
                 const parsedFeed = await parser.parseURL(feed.url);
 
-                for (const item of parsedFeed.items) {
+                let items = parsedFeed.items;
+
+                items = await removeInsertedItems(items, feed._id);
+
+                for (const item of items) {
                     entryArr.push(
                         new Entry({
                             entryId: item.guid,
@@ -427,6 +431,23 @@ const createNotesFromEntries = async (
         });
     }
 };
+
+const removeInsertedItems = async (
+    items: Array<any>,
+    feedId: Schema.Types.ObjectId
+) => {
+    const query = {
+        entryId: { $in: items.map((item) => item.guid) },
+        feed: feedId
+    };
+
+    const entries = await Entry.find(query).select({ entryId: 1 });
+
+    return items.filter(
+        (item) => !entries.find((entry) => item.guid === entry.entryId)
+    );
+};
+
 export default {
     create,
     get,
