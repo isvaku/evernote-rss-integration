@@ -4,6 +4,10 @@ import bcryptjs from "bcryptjs";
 import mongoose from "mongoose";
 import User from "../../Models/user";
 import signJWT from "../../Utils/signJWT";
+import sendEmail from "../../Utils/Email/sendEmail";
+import Token from "../../Models/token";
+import crypto from "crypto";
+import config from "../../Config/config";
 
 const NAMESPACE = "User";
 
@@ -18,7 +22,7 @@ const validateToken = (req: Request, res: Response, next: NextFunction) => {
 const register = (req: Request, res: Response, next: NextFunction) => {
     let { username, email, password } = req.body;
 
-    bcryptjs.hash(password, 10, (hashError, hash) => {
+    bcryptjs.hash(password, config.bcrypt.salt, (hashError, hash) => {
         if (hashError) {
             return res.status(500).json({
                 message: hashError.message,
@@ -36,6 +40,12 @@ const register = (req: Request, res: Response, next: NextFunction) => {
         return _user
             .save()
             .then((user) => {
+                sendEmail(
+                    email,
+                    "Welcome to Evernote RSS Integration",
+                    { username },
+                    "./Templates/welcome.hbs"
+                );
                 return res.status(201).json({
                     user
                 });
@@ -48,6 +58,7 @@ const register = (req: Request, res: Response, next: NextFunction) => {
             });
     });
 };
+
 const login = (req: Request, res: Response, next: NextFunction) => {
     const { username, email, password } = req.body;
 
@@ -99,8 +110,95 @@ const login = (req: Request, res: Response, next: NextFunction) => {
         });
 };
 
+const resetPasswordRequest = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    let { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        res.status(400).json({
+            message: "There was an error with your request"
+        });
+        return;
+    }
+    let token = await Token.findOne({ user: user._id });
+    if (token) await token.deleteOne();
+    let resetToken = crypto.randomBytes(32).toString("hex");
+    const hash = await bcryptjs.hash(resetToken, config.bcrypt.salt);
+
+    await new Token({
+        user: user._id,
+        token: hash,
+        createdAt: Date.now()
+    }).save();
+
+    const link = `http://${config.server.proxyHost}:${config.server.proxyPort}/passwordReset?token=${resetToken}&user_id=${user._id}`;
+    sendEmail(
+        user.email,
+        "Password Reset Request",
+        { username: user.username, link: link },
+        "./Templates/resetPasswordRequest.hbs"
+    );
+    res.status(201).json({
+        message:
+            "An email has been sent to your email, please follow the instructions provided."
+    });
+};
+
+const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+    const token: string = req.query.token.toString();
+    const user_id: string = req.query.user_id.toString();
+
+    const { password } = req.body;
+
+    let passwordResetToken = await Token.findOne({ user: user_id });
+    if (!passwordResetToken) {
+        res.status(400).json({
+            message: "There was an error with your request"
+        });
+        return;
+    }
+
+    const isValid = bcryptjs.compare(token, passwordResetToken.token);
+    if (!isValid) {
+        res.status(400).json({
+            message: "There was an error with your request"
+        });
+    }
+
+    const hash = await bcryptjs.hash(password, config.bcrypt.salt);
+    await User.updateOne(
+        { _id: user_id },
+        { $set: { password: hash } },
+        { new: true }
+    );
+    
+    const user = await User.findById({ _id: user_id });
+    await passwordResetToken.deleteOne();
+
+    sendEmail(
+        user.email,
+        "Password Reset Successfully",
+        {
+            username: user.username
+        },
+        "./Templates/postResetPassword.hbs"
+    );
+
+    res.status(200).json({
+        message:
+            "Password Reset Successfully"
+    });
+};
+
 export default {
     validateToken,
     register,
-    login
+    login,
+    resetPasswordRequest,
+    resetPassword
 };

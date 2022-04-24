@@ -22,8 +22,16 @@ services:
             MONGODB_PASSWORD: password
             MONGODB_HOSTNAME: mongodb
             MONGODB_DATABASE: flaskdb
+            NODEMAILER_HOST: smtp.mail.com
+            NODEMAILER_PORT: 587    
+            NODEMAILER_USERNAME: example@mail.com
+            NODEMAILER_PASSWORD: password
+            BCRYPT_SALT: 10
         ports:
             - "9229:9229"
+        volumes:
+            - ./app_node:/usr/app
+            - nodemodules:/usr/app/node_modules
 
     mongodb:
         environment:
@@ -47,3 +55,6 @@ services:
             ME_CONFIG_MONGODB_ADMINUSERNAME: mongodbuser
             ME_CONFIG_MONGODB_ADMINPASSWORD: your_mongodb_root_password
             ME_CONFIG_MONGODB_SERVER: mongodb
+
+volumes:
+    nodemodules: {}

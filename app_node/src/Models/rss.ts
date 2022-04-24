@@ -1,5 +1,4 @@
 import mongoose, { Schema, Types } from "mongoose";
-import validator, { isEmail } from "validator";
 import IRss from "Interfaces/rss";
 
 const RssSchema: Schema = new Schema(
@@ -25,7 +24,5 @@ const RssSchema: Schema = new Schema(
 );
 
 const Rss = mongoose.model<IRss>("Rss", RssSchema);
-
-// User.createIndexes();
 
 export default Rss;
