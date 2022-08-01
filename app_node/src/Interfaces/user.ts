@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import {Document} from 'mongoose';
 
 export default interface IUser extends Document {
     username: string;
@@ -12,4 +12,4 @@ export default interface IUser extends Document {
         oauthStatus?: string;
         oauthError?: string[];
     };
-}
+};;;;;;;;;;;;;;;;;;;;
