@@ -5,6 +5,7 @@ import config from "../../Config/config";
 import User from "../../Models/user";
 import "core-js/stable";
 import "regenerator-runtime/runtime";
+import { StatusCodes } from "http-status-codes";
 
 const CALLBACK_URL = `http://${config.server.proxyHost}:${config.server.proxyPort}/evernote/oauthRegister`;
 const NAMESPACE = "Evernote";
@@ -25,20 +26,20 @@ export default {
                 .listNotebooks()
                 .then(
                     function (notebooks) {
-                        return res.status(201).json({
+                        return res.status(StatusCodes.OK).json({
                             message: "Successfull",
                             notebooks
                         });
                     },
                     function (error) {
-                        return res.status(500).json({
+                        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                             message: "Error",
                             error
                         });
                     }
                 );
         } else {
-            return res.status(500).json({
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 message: "No Oauthtoken"
             });
         }
@@ -58,7 +59,7 @@ export default {
             CALLBACK_URL + `?username=${res.locals.jwt.username}`,
             async function (error, oauthToken, oauthTokenSecret, results) {
                 if (error) {
-                    return res.status(500).json({
+                    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                         message: "Error",
                         error
                     });
@@ -83,7 +84,7 @@ export default {
                         }
                     );
 
-                    return res.status(201).json({
+                    return res.status(StatusCodes.CREATED).json({
                         message: "Successfull",
                         url: client.getAuthorizeUrl(oauthToken)
                     });
@@ -95,7 +96,7 @@ export default {
     oauth_callback: async (req: Request, res: Response, next: NextFunction) => {
         if (!req.query.username) {
             logging.error(NAMESPACE, "Username missing");
-            return res.status(500).json({
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 message: "Username missing"
             });
         }
@@ -106,7 +107,7 @@ export default {
                 "Verifier missing",
                 req.query.oauth_verifier
             );
-            return res.status(500).json({
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 message: "Verifier missing"
             });
         }
@@ -149,7 +150,7 @@ export default {
                             });
                         })
                         .catch((err) => {
-                            return res.status(500).json({
+                            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                                 message: err.message,
                                 err
                             });
@@ -168,12 +169,12 @@ export default {
 
                     user.save()
                         .then((_user) => {
-                            return res.status(201).json({
+                            return res.status(StatusCodes.CREATED).json({
                                 message: "Successfull"
                             });
                         })
                         .catch((err) => {
-                            return res.status(500).json({
+                            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                                 message: err.message,
                                 err
                             });

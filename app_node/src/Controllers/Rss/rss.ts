@@ -11,6 +11,7 @@ import IEntry from "Interfaces/entry";
 import user from "Interfaces/user";
 import rss from "Interfaces/rss";
 import utils from "../../Utils/utils";
+import { StatusCodes } from "http-status-codes";
 
 const NAMESPACE = "RSS";
 
@@ -18,7 +19,7 @@ const create = async (req: Request, res: Response, next: NextFunction) => {
     const { feed, notebook, tags = [] } = req.body;
 
     if (!feed) {
-        return res.status(500).json({
+        return res.status(StatusCodes.BAD_REQUEST).json({
             message: "Feed is required"
         });
     }
@@ -30,7 +31,7 @@ const create = async (req: Request, res: Response, next: NextFunction) => {
     } catch (error) {
         logging.error(NAMESPACE, "Error while parsing feed", error);
 
-        return res.status(500).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message: "Error while parsing feed",
             error
         });
@@ -43,7 +44,7 @@ const create = async (req: Request, res: Response, next: NextFunction) => {
     try {
         user = await User.findOne({ username: res.locals.jwt.username });
     } catch (error) {
-        return res.status(500).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message: "Error while fetching user",
             error
         });
@@ -70,7 +71,7 @@ const create = async (req: Request, res: Response, next: NextFunction) => {
                 });
 
                 if (!feedNotebook) {
-                    return res.status(500).json({
+                    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                         message:
                             "Notebook provided doesn't exist, verify your input"
                     });
@@ -117,24 +118,24 @@ const create = async (req: Request, res: Response, next: NextFunction) => {
             return _rss
                 .save()
                 .then((rss) => {
-                    return res.status(201).json({
+                    return res.status(StatusCodes.CREATED).json({
                         rss
                     });
                 })
                 .catch((err) => {
-                    return res.status(500).json({
+                    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                         message: err.message,
                         err
                     });
                 });
         } catch (error) {
-            return res.status(500).json({
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 message: error.message,
                 error
             });
         }
     } else {
-        return res.status(500).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message: "User doesn't have Evernote oauth registered"
         });
     }
@@ -145,11 +146,11 @@ const get = async (req: Request, res: Response, next: NextFunction) => {
         const user = await User.findOne({ username: res.locals.jwt.username });
         const feeds = await Rss.find({ active: true, user: user._id });
 
-        return res.status(200).json({
+        return res.status(StatusCodes.OK).json({
             feeds
         });
     } catch (error) {
-        return res.status(500).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message: "User doesn't have Evernote oauth registered",
             error
         });
@@ -171,7 +172,7 @@ const update = async (req: Request, res: Response, next: NextFunction) => {
             user: user._id
         });
     } catch (error) {
-        return res.status(500).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message: "Error while fetching data",
             error
         });
@@ -198,7 +199,7 @@ const update = async (req: Request, res: Response, next: NextFunction) => {
                 });
 
                 if (!feedNotebook) {
-                    return res.status(500).json({
+                    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                         message:
                             "Notebook provided doesn't exist, verify your input"
                     });
@@ -241,24 +242,24 @@ const update = async (req: Request, res: Response, next: NextFunction) => {
             return rss
                 .save()
                 .then((rss) => {
-                    return res.status(201).json({
+                    return res.status(StatusCodes.CREATED).json({
                         rss
                     });
                 })
                 .catch((err) => {
-                    return res.status(500).json({
+                    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                         message: err.message,
                         err
                     });
                 });
         } catch (error) {
-            return res.status(500).json({
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 message: error.message,
                 error
             });
         }
     } else {
-        return res.status(500).json({
+        return res.status(StatusCodes.UNAUTHORIZED).json({
             message: "User doesn't have Evernote oauth registered"
         });
     }
@@ -268,15 +269,15 @@ const remove = async (req: Request, res: Response, next: NextFunction) => {
     const { rssId } = req.body;
 
     if (!rssId) {
-        return res.status(500).json({
+        return res.status(StatusCodes.BAD_REQUEST).json({
             message: "rssId is required"
         });
     }
     try {
         const user = await User.findOne({ username: res.locals.jwt.username });
         const rssObjid = new mongoose.Types.ObjectId(rssId);
-        
-        const entriesDeleted = await Entry.deleteMany({ "feed": rssObjid });
+
+        const entriesDeleted = await Entry.deleteMany({ feed: rssObjid });
 
         logging.info(NAMESPACE, "entriesDeleted", entriesDeleted);
 
@@ -286,17 +287,17 @@ const remove = async (req: Request, res: Response, next: NextFunction) => {
         });
 
         if (deletionError.deletedCount > 0) {
-            return res.status(200).json({
+            return res.status(StatusCodes.OK).json({
                 message: "rss removed successfully"
             });
         }
 
-        return res.status(500).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message: "There was an error while removing rss",
             error: deletionError
         });
     } catch (error) {
-        return res.status(500).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message: "Error while fetching data",
             error
         });
@@ -313,7 +314,7 @@ const insertEntriesFromFeed = async (
         const feeds = await Rss.find({ active: true });
 
         if (feeds.length === 0) {
-            return res.status(200).json({
+            return res.status(StatusCodes.NOT_FOUND).json({
                 message: "No feeds found",
                 count: 0
             });
@@ -348,25 +349,25 @@ const insertEntriesFromFeed = async (
                         ordered: false
                     });
 
-                    return res.status(200).json({
+                    return res.status(StatusCodes.OK).json({
                         message: "Entries inserted",
                         count: entries.length
                     });
                 } catch (error) {
-                    return res.status(500).json({
+                    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                         message: "Error saving entries",
                         error
                     });
                 }
             } catch (error) {
-                return res.status(500).json({
+                return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                     message: "Error parsing RSS Feed",
                     error
                 });
             }
         }
     } catch (error) {
-        return res.status(500).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message: "Error fetching Feeds from DB",
             error
         });
@@ -420,12 +421,12 @@ const createNotesFromEntries = async (
             createdNotes++;
         }
 
-        return res.status(200).json({
+        return res.status(StatusCodes.OK).json({
             message: "Success",
             createdNotes
         });
     } catch (error) {
-        return res.status(500).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message: "Error fetching Feeds from DB",
             error
         });

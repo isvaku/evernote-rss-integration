@@ -8,13 +8,14 @@ import sendEmail from "../../Utils/Email/sendEmail";
 import Token from "../../Models/token";
 import crypto from "crypto";
 import config from "../../Config/config";
+import { StatusCodes } from "http-status-codes";
 
 const NAMESPACE = "User";
 
 const validateToken = (req: Request, res: Response, next: NextFunction) => {
     logging.info(NAMESPACE, "Token validated, user authorized");
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
         message: "Authorized"
     });
 };
@@ -24,7 +25,7 @@ const register = (req: Request, res: Response, next: NextFunction) => {
 
     bcryptjs.hash(password, config.bcrypt.salt, (hashError, hash) => {
         if (hashError) {
-            return res.status(500).json({
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 message: hashError.message,
                 error: hashError
             });
@@ -46,12 +47,12 @@ const register = (req: Request, res: Response, next: NextFunction) => {
                     { username },
                     "./Templates/welcome.hbs"
                 );
-                return res.status(201).json({
+                return res.status(StatusCodes.CREATED).json({
                     user
                 });
             })
             .catch((err) => {
-                return res.status(500).json({
+                return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                     message: err.message,
                     err
                 });
@@ -65,7 +66,7 @@ const login = (req: Request, res: Response, next: NextFunction) => {
     const query = username ? username : email;
 
     if (!query) {
-        return res.status(500).json({
+        return res.status(StatusCodes.BAD_REQUEST).json({
             message: "Username or email is required"
         });
     }
@@ -74,7 +75,7 @@ const login = (req: Request, res: Response, next: NextFunction) => {
         .exec()
         .then((users) => {
             if (users.length !== 1) {
-                return res.status(401).json({
+                return res.status(StatusCodes.UNAUTHORIZED).json({
                     message: "Unauthorized"
                 });
             }
@@ -91,11 +92,11 @@ const login = (req: Request, res: Response, next: NextFunction) => {
                                 _error
                             );
 
-                            return res.status(401).json({
+                            return res.status(StatusCodes.UNAUTHORIZED).json({
                                 message: "Unauthorized"
                             });
                         } else if (token) {
-                            return res.status(200).json({
+                            return res.status(StatusCodes.OK).json({
                                 message: "Auth successful",
                                 token,
                                 user: users[0]
@@ -120,7 +121,7 @@ const resetPasswordRequest = async (
     const user = await User.findOne({ email });
 
     if (!user) {
-        res.status(400).json({
+        res.status(StatusCodes.NOT_FOUND).json({
             message: "There was an error with your request"
         });
         return;
@@ -143,7 +144,7 @@ const resetPasswordRequest = async (
         { username: user.username, link: link },
         "./Templates/resetPasswordRequest.hbs"
     );
-    res.status(201).json({
+    res.status(StatusCodes.CREATED).json({
         message:
             "An email has been sent to your email, please follow the instructions provided."
     });
@@ -157,7 +158,7 @@ const resetPassword = async (req: Request, res: Response, next: NextFunction) =>
 
     let passwordResetToken = await Token.findOne({ user: user_id });
     if (!passwordResetToken) {
-        res.status(400).json({
+        res.status(StatusCodes.BAD_REQUEST).json({
             message: "There was an error with your request"
         });
         return;
@@ -165,7 +166,7 @@ const resetPassword = async (req: Request, res: Response, next: NextFunction) =>
 
     const isValid = bcryptjs.compare(token, passwordResetToken.token);
     if (!isValid) {
-        res.status(400).json({
+        res.status(StatusCodes.BAD_REQUEST).json({
             message: "There was an error with your request"
         });
     }
@@ -189,7 +190,7 @@ const resetPassword = async (req: Request, res: Response, next: NextFunction) =>
         "./Templates/postResetPassword.hbs"
     );
 
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
         message:
             "Password Reset Successfully"
     });

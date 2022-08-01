@@ -6,6 +6,7 @@ import config from "./Config/config";
 import logging from "./Utils/logging";
 import userRoutes from "./Routes/User/user";
 import rssRoutes from "./Routes/Rss/rss";
+import { StatusCodes } from "http-status-codes";
 
 const NAMESPACE = "Server";
 
@@ -49,7 +50,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
             "Access-Control-Allow-Methods",
             "PUT, POST, PATCH, DELETE, GET"
         );
-        return res.status(200).json({});
+        return res.status(StatusCodes.OK).json({});
     }
 
     next();
@@ -62,7 +63,7 @@ app.use("/rss", rssRoutes);
 app.use((req: Request, res: Response, next: NextFunction) => {
     const error = new Error("Not found");
 
-    res.status(404).json({
+    res.status(StatusCodes.NOT_FOUND).json({
         message: error.message,
         error
     });
