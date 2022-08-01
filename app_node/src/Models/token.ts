@@ -1,4 +1,4 @@
-import mongoose, {Schema, Types} from 'mongoose';
+import mongoose, {Schema} from 'mongoose';
 import IToken from 'Interfaces/token';
 
 const TokenSchema: Schema = new Schema({

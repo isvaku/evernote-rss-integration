@@ -12,4 +12,4 @@ export default interface IUser extends Document {
         oauthStatus?: string;
         oauthError?: string[];
     };
-};;;;;;;;;;;;;;;;;;;;
+};

@@ -8,7 +8,8 @@ const router = express.Router();
 router.get('/validate', extractJWT, controller.validateToken);
 router.post('/register', controller.register);
 router.post('/login', controller.login);
-router.post('/resetPasswordRequest', expressAsyncHandler(controller.resetPasswordRequest));
+router.post('/resetPasswordRequest',
+    expressAsyncHandler(controller.resetPasswordRequest));
 router.post('/resetPassword', expressAsyncHandler(controller.resetPassword));
 
 export default router;

@@ -18,7 +18,7 @@ export default async (
             body: Buffer.from(body, 'binary'),
           });
         } else {
-          reject({
+          reject({ // eslint-disable-line prefer-promise-reject-errors
             statusCode: res.statusCode,
             headers: res.headers,
             body: 'Request failed. status: ' + res.statusCode,

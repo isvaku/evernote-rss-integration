@@ -13,4 +13,4 @@ export default interface IRss extends Document {
     }[];
     active: boolean;
     user: PopulatedDoc<IUser>;
-};;;;;;;;;;;;;;;;;;;;
+};

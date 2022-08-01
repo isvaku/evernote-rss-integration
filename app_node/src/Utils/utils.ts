@@ -9,6 +9,7 @@ const NAMESPACE = 'Utils';
 
 const ATTRS_REGEX: RegExp = /\w+=\"[^"]*\"(?:\.?\"[^)]*\")*/g;
 const URL_REGEX: RegExp =
+    // eslint-disable-next-line max-len
     /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/g;
 const BANNED_ELEMENTS: string[] = [
   'applet',
@@ -166,7 +167,11 @@ export default {
               }),
           );
         } else {
-          logging.error(NAMESPACE, 'Error fetching media: ', multimediaObject.body);
+          logging.error(
+              NAMESPACE,
+              'Error fetching media: ',
+              multimediaObject.body,
+          );
         }
       } else {
         this.removeBannedAttributes(childNode);
@@ -218,6 +223,7 @@ export default {
       src = element.getAttribute('srcset');
 
       const srcset:RegExpMatchArray[] = [...src.matchAll(this.URL_REGEX)];
+      // eslint-disable-next-line max-len
       const srcsetString: string[] = srcset.map((nodeAttribute) => nodeAttribute[0]);
       if (srcset.length > 0) {
         return srcsetString[0];

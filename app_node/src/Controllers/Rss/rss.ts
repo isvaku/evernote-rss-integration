@@ -73,7 +73,7 @@ const create = async (req: Request, res: Response, next: NextFunction) => {
         if (!feedNotebook) {
           return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message:
-                            'Notebook provided doesn\'t exist, verify your input',
+                'Notebook provided doesn\'t exist, verify your input',
           });
         }
       } else {
@@ -201,7 +201,7 @@ const update = async (req: Request, res: Response, next: NextFunction) => {
         if (!feedNotebook) {
           return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message:
-                            'Notebook provided doesn\'t exist, verify your input',
+                'Notebook provided doesn\'t exist, verify your input',
           });
         }
 

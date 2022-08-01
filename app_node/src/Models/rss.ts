@@ -1,4 +1,4 @@
-import mongoose, {Schema, Types} from 'mongoose';
+import mongoose, {Schema} from 'mongoose';
 import IRss from 'Interfaces/rss';
 
 const RssSchema: Schema = new Schema(

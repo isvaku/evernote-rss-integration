@@ -146,17 +146,20 @@ const resetPasswordRequest = async (
   );
   res.status(StatusCodes.CREATED).json({
     message:
-            'An email has been sent to your email, please follow the instructions provided.',
+        `An email has been sent to your email, 
+        please follow the instructions provided.`,
   });
 };
 
-const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
-  const token: string = req.query.token.toString();
-  const user_id: string = req.query.user_id.toString();
+const resetPassword = async (
+    req: Request, 
+    res: Response, 
+    next: NextFunction) => {
+  const {token, user_id: userId} = req.query;
 
   const {password} = req.body;
 
-  const passwordResetToken = await Token.findOne({user: user_id});
+  const passwordResetToken = await Token.findOne({user: userId});
   if (!passwordResetToken) {
     res.status(StatusCodes.BAD_REQUEST).json({
       message: 'There was an error with your request',
@@ -164,7 +167,7 @@ const resetPassword = async (req: Request, res: Response, next: NextFunction) =>
     return;
   }
 
-  const isValid = bcryptjs.compare(token, passwordResetToken.token);
+  const isValid = bcryptjs.compare(token as string, passwordResetToken.token);
   if (!isValid) {
     res.status(StatusCodes.BAD_REQUEST).json({
       message: 'There was an error with your request',
@@ -173,12 +176,12 @@ const resetPassword = async (req: Request, res: Response, next: NextFunction) =>
 
   const hash = await bcryptjs.hash(password, config.bcrypt.salt);
   await User.updateOne(
-      {_id: user_id},
+      {_id: userId},
       {$set: {password: hash}},
       {new: true},
   );
 
-  const user = await User.findById({_id: user_id});
+  const user = await User.findById({_id: userId});
   await passwordResetToken.deleteOne();
 
   sendEmail(

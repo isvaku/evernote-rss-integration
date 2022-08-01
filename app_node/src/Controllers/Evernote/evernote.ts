@@ -76,7 +76,7 @@ export default {
               },
             };
 
-            const user = await User.findOneAndUpdate(
+            await User.findOneAndUpdate(
                 findQuery,
                 updateQuery,
                 {

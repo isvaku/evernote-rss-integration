@@ -11,4 +11,4 @@ export default interface IEntry extends Document {
     entryErrors?: [string];
     feed: PopulatedDoc<IRss>;
     entryDate: Date;
-};;;;;;;;;;;;;;;;;;;;
+};

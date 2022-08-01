@@ -1,5 +1,5 @@
 import mongoose, {Schema} from 'mongoose';
-import validator, {isEmail} from 'validator';
+import {isEmail} from 'validator';
 import IUser from 'Interfaces/user';
 
 const UserSchema: Schema = new Schema(
