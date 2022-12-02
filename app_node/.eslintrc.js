@@ -15,5 +15,8 @@ module.exports = {
     '@typescript-eslint',
   ],
   'rules': {
+    "semi": "off",
+    "@typescript-eslint/semi": ["error", "always"],
+    "new-cap": ["error", { "capIsNewExceptionPattern": "^express\\.." }],
   },
 };
