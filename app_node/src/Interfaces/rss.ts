@@ -1,5 +1,5 @@
-import { Document, PopulatedDoc } from "mongoose";
-import IUser from "./user";
+import {Document, PopulatedDoc} from 'mongoose';
+import IUser from './user';
 
 export default interface IRss extends Document {
     url: string;
@@ -13,4 +13,4 @@ export default interface IRss extends Document {
     }[];
     active: boolean;
     user: PopulatedDoc<IUser>;
-}
+};

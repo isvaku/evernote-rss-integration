@@ -1,5 +1,5 @@
-import { Document, PopulatedDoc } from "mongoose";
-import IRss from "./rss";
+import {Document, PopulatedDoc} from 'mongoose';
+import IRss from './rss';
 
 export default interface IEntry extends Document {
     entryId: string;
@@ -11,4 +11,4 @@ export default interface IEntry extends Document {
     entryErrors?: [string];
     feed: PopulatedDoc<IRss>;
     entryDate: Date;
-}
+};
