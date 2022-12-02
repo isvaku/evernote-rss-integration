@@ -63,7 +63,7 @@ const register = (req: Request, res: Response, next: NextFunction) => {
 const login = (req: Request, res: Response, next: NextFunction) => {
   const {username, email, password} = req.body;
 
-  const query = username ? username : email;
+  const query = username ? {username} : {email};
 
   if (!query) {
     return res.status(StatusCodes.BAD_REQUEST).json({
@@ -71,7 +71,7 @@ const login = (req: Request, res: Response, next: NextFunction) => {
     });
   }
 
-  User.find({query})
+  User.find(query)
       .exec()
       .then((users) => {
         if (users.length !== 1) {
@@ -80,34 +80,49 @@ const login = (req: Request, res: Response, next: NextFunction) => {
           });
         }
 
-        bcryptjs.compare(password, users[0].password, (error, result) => {
+        const [user] = users;
+
+        bcryptjs.compare(password, user.password, (error, result) => {
           if (error) {
             logging.error(NAMESPACE, error.message, error);
-          } else if (result) {
-            signJWT(users[0], (_error, token) => {
-              if (_error) {
+            return res.status(StatusCodes.UNAUTHORIZED).json({
+              message: error.message,
+            });
+          }
+
+          if (result) {
+            return signJWT(user, (signJWTError, token) => {
+              if (signJWTError) {
                 logging.error(
                     NAMESPACE,
                     'Unable to sign token: ',
-                    _error,
+                    signJWTError,
                 );
 
-                return res.status(StatusCodes.UNAUTHORIZED).json({
+                res.status(StatusCodes.UNAUTHORIZED).json({
                   message: 'Unauthorized',
                 });
-              } else if (token) {
-                return res.status(StatusCodes.OK).json({
+              }
+
+              if (token) {
+                res.status(StatusCodes.OK).json({
                   message: 'Auth successful',
                   token,
-                  user: users[0],
+                  user: user,
                 });
               }
             });
           }
+
+          return res.status(StatusCodes.UNAUTHORIZED).json({
+            message: 'Unauthorized',
+          });
         });
       })
       .catch((err) => {
-        message: err.message, err;
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+          message: err.message,
+        });
       });
 };
 
@@ -152,8 +167,8 @@ const resetPasswordRequest = async (
 };
 
 const resetPassword = async (
-    req: Request, 
-    res: Response, 
+    req: Request,
+    res: Response,
     next: NextFunction) => {
   const {token, user_id: userId} = req.query;
 
