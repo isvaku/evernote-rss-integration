@@ -143,8 +143,7 @@ export default {
 
         if (
           multimediaObject.body &&
-                    multimediaObject.headers &&
-                    multimediaObject.headers['content-type']
+          multimediaObject.headers?.['content-type']
         ) {
           multimediaObject.md5 = createMD5(multimediaObject.body);
           const mediaTag = this.createEnMediaTag(
@@ -174,8 +173,15 @@ export default {
           );
         }
       } else {
-        this.removeBannedAttributes(childNode);
-        sanitizedBody += childNode.toString();
+        let textToAppennd = childNode.rawText;
+        // @ts-expect-error
+        if (childNode.tagName) {
+          this.removeBannedAttributes(childNode);
+        } else {
+          textToAppennd = this.escapeXml(textToAppennd);
+        }
+
+        sanitizedBody += textToAppennd;
       }
     }
 
@@ -184,7 +190,7 @@ export default {
             '<?xml version="1.0" encoding="UTF-8"?>' +
             '<!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml2.dtd">' +
             '<en-note>' +
-            entry.title +
+            this.escapeXml(entry.title) +
             '<br />' +
             '<br />' +
             entry.author +
@@ -233,6 +239,18 @@ export default {
     }
 
     return src;
+  },
+
+  escapeXml: function(unsafe: string) {
+    return unsafe.replace(/[<>&'"]/g, function(c) {
+      switch (c) {
+        case '<': return '&lt;';
+        case '>': return '&gt;';
+        case '&': return '&amp;';
+        case '\'': return '&apos;';
+        case '"': return '&quot;';
+      }
+    });
   },
 
   ATTRS_REGEX: ATTRS_REGEX,
